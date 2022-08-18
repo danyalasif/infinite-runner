@@ -1,6 +1,6 @@
 import math
 import pygame
-from random import randint
+from random import randint, choice
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -51,6 +51,40 @@ class Player(pygame.sprite.Sprite):
         self.apply_gravity()
         self.animate()
 
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, type):
+        super().__init__()
+        if type == 'fly':
+            fly_frame_1 = pygame.image.load("graphics/fly/fly1.png").convert_alpha()
+            fly_frame_2 = pygame.image.load("graphics/fly/fly2.png").convert_alpha()
+            self.frames = [fly_frame_1, fly_frame_2]
+            y_pos = 210
+            self.move_speed = randint(3, 6)
+        else:
+            snail_frame_1 = pygame.image.load("graphics/snail/snail1.png").convert_alpha()
+            snail_frame_2 = pygame.image.load("graphics/snail/snail2.png").convert_alpha()
+            self.frames = [snail_frame_1, snail_frame_2]
+            y_pos = 300
+            self.move_speed = randint(1, 4)
+
+
+        self.animation_index = 0
+        self.image = self.frames[self.animation_index]
+        self.rect = self.image.get_rect(midbottom = (randint(900, 1100), y_pos))
+
+    def animate(self):
+        self.animation_index += 0.1
+        if self.animation_index >= len(self.frames): self.animation_index = 0
+        self.image = self.frames[int(self.animation_index)]
+
+    def update(self):
+        self.animate()
+        self.rect.x -= self.move_speed
+        self.destroy()
+    
+    def destroy(self):
+        if self.rect.x <= -100:
+            self.kill()
 
 def display_score():
     current_time = math.floor((pygame.time.get_ticks() - start_time) / 1000)
@@ -88,6 +122,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 player = pygame.sprite.GroupSingle()
 player.add(Player())
+
+obstacle_group = pygame.sprite.Group()
 
 pygame.display.set_caption("Runner")
 clock = pygame.time.Clock()
@@ -186,10 +222,7 @@ while True:
                 if event.key == pygame.K_SPACE and isOnGround():
                     player_gravity = -20
             if event.type == obstacle_timer:
-                if randint(0, 2):
-                    obstacle_rect_list.append(snail_surf.get_rect(midbottom = (randint(800, 1100), GROUND_X)))
-                else:
-                    obstacle_rect_list.append(fly_surf.get_rect(midbottom = (randint(800, 1100), GROUND_X - player_surf.get_height() - 10)))
+                obstacle_group.add(Obstacle(choice(["fly", "snail", "snail", "snail"])))
             
             if event.type == snail_anim_timer:
                 if snail_anim_index == 0: snail_anim_index = 1
@@ -215,6 +248,8 @@ while True:
         screen.blit(player_surf, player_rect)
         player.draw(screen)
         player.update()
+        obstacle_group.draw(screen)
+        obstacle_group.update()
 
         player_gravity += 1
         player_rect.y += player_gravity
