@@ -14,7 +14,7 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
 GROUND_X = 300
-game_active = False
+game_active = True
 start_time = 0
 score = 0
 
@@ -69,6 +69,15 @@ def obstacle_movement(obstacle_list):
 
     return obstacle_list
 
+def check_collisions(player, obstacles):
+    if obstacles:
+        for obstacle_rect in obstacles:
+            if player.colliderect(obstacle_rect):
+                return False
+    return True
+
+
+
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 2000)
 
@@ -92,7 +101,6 @@ while True:
                     obstacle_rect_list.append(fly_surf.get_rect(midbottom = (randint(800, 1100), GROUND_X - player_surf.get_height() - 10)))
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                player_rect.x = 80
                 game_active = True
                 start_time = pygame.time.get_ticks()
 
@@ -102,18 +110,8 @@ while True:
     if game_active:
         screen.blit(sky_surf, (0, 0))
         screen.blit(ground_surf, (0, GROUND_X))
-        # pygame.draw.rect(screen, "#c0e8ec", score_rect)
-        # pygame.draw.rect(screen, "#c0e8ec", score_rect, width=200)
-        # screen.blit(score_surf, score_rect)
+        screen.blit(player_surf, player_rect)
         score = display_score()
-
-
-        # player_rect.left += 1
-        # snail_rect.x -= 4
-
-        # if snail_rect.right < 0 - snail_surf.get_width():
-        #     snail_rect.left = SCREEN_WIDTH + snail_surf.get_width()
-
 
         player_gravity += 1
         player_rect.y += player_gravity
@@ -122,16 +120,18 @@ while True:
         obstacle_rect_list = obstacle_movement(obstacle_rect_list)
 
 
+        # Collisions
         if isOnGround():
             player_rect.bottom = GROUND_X
 
-        # if snail_rect.colliderect(player_rect):
-        #     game_active = False
-        
-        # screen.blit(snail_surf, snail_rect)
-        screen.blit(player_surf, player_rect)
+        game_active = check_collisions(player_rect, obstacle_rect_list)
+        print(game_active)
 
     if not game_active:
+        obstacle_rect_list.clear()
+        player_rect.midbottom = (80, GROUND_X)
+        player_gravity = 0
+
         score_surf = pixel_font.render(f'Your score: {score}', False, (100, 64, 64))
         score_rect = score_surf.get_rect(center = (SCREEN_WIDTH / 2, 100))
         game_over_surf = pixel_font.render("Game Over", False, (100, 64, 64))
