@@ -134,61 +134,9 @@ sky_surf = pygame.image.load('graphics/Sky.png').convert()
 ground_surf = pygame.image.load('graphics/ground.png').convert()
 
 
-# Obstacles
-snail_frame_1 = pygame.image.load("graphics/snail/snail1.png").convert_alpha()
-snail_frame_2 = pygame.image.load("graphics/snail/snail2.png").convert_alpha()
-snail_anim = [snail_frame_1, snail_frame_2]
-snail_anim_index = 0
-snail_surf = snail_anim[snail_anim_index]
-
-fly_frame_1 = pygame.image.load("graphics/fly/fly1.png").convert_alpha()
-fly_frame_2 = pygame.image.load("graphics/fly/fly2.png").convert_alpha()
-fly_anim = [fly_frame_1, fly_frame_2]
-fly_anim_index = 0
-fly_surf = fly_anim[fly_anim_index]
-
-obstacle_rect_list = []
-
-
-# Player
-player_walk_1 = pygame.image.load("graphics/Player/player_walk_1.png").convert_alpha()
-player_walk_2 = pygame.image.load("graphics/Player/player_walk_2.png").convert_alpha()
-player_walk = [player_walk_1, player_walk_2]
-player_index = 0
-player_jump = pygame.image.load("graphics/Player/jump.png").convert_alpha()
-
-player_surf = player_walk[player_index]
-player_rect = player_surf.get_rect(midbottom = (80, GROUND_X))
-
-player_stand_surf = pygame.image.load("graphics/Player/player_stand.png").convert_alpha()
-player_stand_surf = pygame.transform.rotozoom(player_stand_surf, 0, 2)
-player_stand_rect = player_stand_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT -180))
-
-player_gravity = 0
-
 def isJumping(rect: pygame.Rect):
     return rect.midbottom[1] < GROUND_X
 
-def isOnGround():
-    return player_rect.bottom >= GROUND_X
-
-def isJumping():
-    return player_rect.bottom < GROUND_X
-
-def obstacle_movement(obstacle_list):
-    if not obstacle_list:
-        return []
-    for obstacle_rect in obstacle_list:
-        obstacle_rect.x -= randint(2, 5)
-
-        if obstacle_rect.bottom == GROUND_X:
-            screen.blit(snail_surf, obstacle_rect)
-        else:
-            screen.blit(fly_surf, obstacle_rect)
-
-        obstacle_list = [obstacle for obstacle in obstacle_list if obstacle.x > -100]
-
-    return obstacle_list
 
 def check_collisions(player, obstacles):
     if obstacles:
@@ -215,23 +163,8 @@ while True:
             exit()
 
         if game_active:
-            if event.type == pygame.MOUSEBUTTONDOWN and isOnGround():
-                player_gravity = -20
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and isOnGround():
-                    player_gravity = -20
             if event.type == obstacle_timer:
                 obstacle_group.add(Obstacle(choice(["fly", "snail", "snail", "snail"])))
-            
-            if event.type == snail_anim_timer:
-                if snail_anim_index == 0: snail_anim_index = 1
-                else: snail_anim_index = 0
-                snail_surf = snail_anim[snail_anim_index]
-            if event.type == fly_anim_timer:
-                if fly_anim_index == 0: fly_anim_index = 1
-                else: fly_anim_index = 0
-                fly_surf = fly_anim[fly_anim_index]
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
@@ -244,31 +177,20 @@ while True:
         screen.blit(sky_surf, (0, 0))
         screen.blit(ground_surf, (0, GROUND_X))
         score = display_score()
-        player_animation()
-        screen.blit(player_surf, player_rect)
+        
         player.draw(screen)
         player.update()
         obstacle_group.draw(screen)
         obstacle_group.update()
 
-        player_gravity += 1
-        player_rect.y += player_gravity
 
-        # Obstacle movement
-        obstacle_rect_list = obstacle_movement(obstacle_rect_list)
-
-
-        # Collisions
-        if isOnGround():
-            player_rect.bottom = GROUND_X
-
-        game_active = check_collisions(player_rect, obstacle_rect_list)
+        # game_active = check_collisions(player_rect, obstacle_rect_list)
 
     if not game_active:
-        obstacle_rect_list.clear()
-        player_rect.midbottom = (80, GROUND_X)
         player_gravity = 0
-
+        player_stand_surf = pygame.image.load("graphics/Player/player_stand.png").convert_alpha()
+        player_stand_surf = pygame.transform.rotozoom(player_stand_surf, 0, 2)
+        player_stand_rect = player_stand_surf.get_rect(center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT -180))
         score_surf = pixel_font.render(f'Your score: {score}', False, (100, 64, 64))
         score_rect = score_surf.get_rect(center = (SCREEN_WIDTH / 2, 100))
         game_over_surf = pixel_font.render("Game Over", False, (100, 64, 64))
