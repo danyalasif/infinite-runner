@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.player_jump = pygame.image.load("graphics/Player/jump.png").convert_alpha()
 
         self.image = self.player_walk[self.player_anim_index]
-        self.rect = self.image.get_rect(midbottom = (200, 300))
+        self.rect = self.image.get_rect(midbottom = (80, 300))
         self.gravity = 0
         self.gravity_force = 1
         self.jump_force = -20
@@ -133,19 +133,11 @@ pixel_font = pygame.font.Font("font/Pixeltype.ttf", 50)
 sky_surf = pygame.image.load('graphics/Sky.png').convert()
 ground_surf = pygame.image.load('graphics/ground.png').convert()
 
-
-def isJumping(rect: pygame.Rect):
-    return rect.midbottom[1] < GROUND_X
-
-
-def check_collisions(player, obstacles):
-    if obstacles:
-        for obstacle_rect in obstacles:
-            if player.colliderect(obstacle_rect):
-                return False
+def check_sprite_collision():
+    if pygame.sprite.spritecollide(player.sprite, obstacle_group, False):
+        obstacle_group.empty()
+        return False
     return True
-
-
 
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 2000)
@@ -183,8 +175,7 @@ while True:
         obstacle_group.draw(screen)
         obstacle_group.update()
 
-
-        # game_active = check_collisions(player_rect, obstacle_rect_list)
+        game_active = check_sprite_collision()
 
     if not game_active:
         player_gravity = 0
