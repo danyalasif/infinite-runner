@@ -1,94 +1,9 @@
 import math
 import pygame
-from random import randint, choice
+from random import choice
+from Player import Player
+from Obstacle import Obstacle
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        player_walk_1 = pygame.image.load("graphics/Player/player_walk_1.png").convert_alpha()
-        player_walk_2 = pygame.image.load("graphics/Player/player_walk_2.png").convert_alpha()
-        self.player_walk = [player_walk_1, player_walk_2]
-        self.player_anim_index = 0
-        self.player_jump = pygame.image.load("graphics/Player/jump.png").convert_alpha()
-
-        self.image = self.player_walk[self.player_anim_index]
-        self.rect = self.image.get_rect(midbottom = (80, 300))
-        self.gravity = 0
-        self.gravity_force = 1
-        self.jump_force = -20
-
-        self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
-        self.jump_sound.set_volume(0.3)
-
-    
-    def player_input(self):
-        keys = pygame.key.get_pressed()
-        mouse = pygame.mouse.get_pressed()
-        if (keys[pygame.K_SPACE] or mouse[0]) and self.rect.bottom >= 300:
-            self.jump_sound.play()
-            self.gravity = self.jump_force 
-
-    def apply_gravity(self):
-        self.gravity += self.gravity_force
-        self.rect.y += self.gravity
-        if self.isOnGround():
-            self.rect.bottom = 300
-
-    def isJumping(self):
-        return self.rect.midbottom[1] < GROUND_X
-
-    def isOnGround(self):
-        return self.rect.bottom >= 300
-
-    def animate(self):
-        if self.isOnGround():
-            self.player_anim_index += 0.1
-            if self.player_anim_index >= len(self.player_walk):
-                self.player_anim_index = 0
-            self.image = self.player_walk[int(self.player_anim_index)]
-        else:
-            self.image = self.player_jump
-
-
-    def update(self):
-        self.player_input()
-        self.apply_gravity()
-        self.animate()
-
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, type):
-        super().__init__()
-        if type == 'fly':
-            fly_frame_1 = pygame.image.load("graphics/fly/fly1.png").convert_alpha()
-            fly_frame_2 = pygame.image.load("graphics/fly/fly2.png").convert_alpha()
-            self.frames = [fly_frame_1, fly_frame_2]
-            y_pos = 210
-            self.move_speed = randint(3, 6)
-        else:
-            snail_frame_1 = pygame.image.load("graphics/snail/snail1.png").convert_alpha()
-            snail_frame_2 = pygame.image.load("graphics/snail/snail2.png").convert_alpha()
-            self.frames = [snail_frame_1, snail_frame_2]
-            y_pos = 300
-            self.move_speed = randint(1, 4)
-
-
-        self.animation_index = 0
-        self.image = self.frames[self.animation_index]
-        self.rect = self.image.get_rect(midbottom = (randint(900, 1100), y_pos))
-
-    def animate(self):
-        self.animation_index += 0.1
-        if self.animation_index >= len(self.frames): self.animation_index = 0
-        self.image = self.frames[int(self.animation_index)]
-
-    def update(self):
-        self.animate()
-        self.rect.x -= self.move_speed
-        self.destroy()
-    
-    def destroy(self):
-        if self.rect.x <= -100:
-            self.kill()
 
 def display_score():
     current_time = math.floor((pygame.time.get_ticks() - start_time) / 1000)
