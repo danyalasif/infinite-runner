@@ -33,7 +33,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = 300
 
     def isJumping(self):
-        return self.rect.midbottom[1] < GROUND_X
+        return self.rect.midbottom[1] < 300
 
     def isOnGround(self):
         return self.rect.bottom >= 300

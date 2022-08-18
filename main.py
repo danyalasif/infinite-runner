@@ -12,23 +12,6 @@ def display_score():
     screen.blit(score_surf, score_rect)
     return current_time
 
-def player_animation():
-    global player_surf, player_index
-
-    if isOnGround():
-        # show walk
-        player_index += 0.1
-        if (player_index >= len(player_walk)):
-            player_index = 0
-        player_surf = player_walk[int(player_index)]
-    else:
-        #show walk anim
-        player_surf = player_jump
-    # play walking animation if the player is on floor
-
-    # show jump animation if player is jumping
-    pass
-
 pygame.init()
 
 SCREEN_WIDTH = 800
