@@ -1,5 +1,7 @@
 import pygame
 
+from Bullet import Bullet
+
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -22,7 +24,7 @@ class Player(pygame.sprite.Sprite):
     def player_input(self):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
-        if (keys[pygame.K_SPACE] or mouse[0]) and self.rect.bottom >= 300:
+        if (keys[pygame.K_SPACE]) and self.rect.bottom >= 300:
             self.jump_sound.play()
             self.gravity = self.jump_force 
 

@@ -1,6 +1,7 @@
 import math
 import pygame
 from random import choice
+from Bullet import Bullet
 from Player import Player
 from Obstacle import Obstacle
 
@@ -25,6 +26,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 player = pygame.sprite.GroupSingle()
 player.add(Player())
 
+bullet_group = pygame.sprite.Group()
 obstacle_group = pygame.sprite.Group()
 
 pygame.display.set_caption("Runner")
@@ -35,13 +37,20 @@ pixel_font = pygame.font.Font("font/Pixeltype.ttf", 50)
 sky_surf = pygame.image.load('graphics/Sky.png').convert()
 ground_surf = pygame.image.load('graphics/ground.png').convert()
 background_music = pygame.mixer.Sound('audio/music.wav')
-background_music.play(loops = -1)
+# background_music.play(loops = -1)
 
 def check_sprite_collision():
     if pygame.sprite.spritecollide(player.sprite, obstacle_group, False):
         obstacle_group.empty()
         return False
     return True
+
+def check_bullet_collision():
+    for bullet in bullet_group:
+        for enemy in obstacle_group:
+            if bullet.rect.colliderect(enemy.rect):
+                enemy.kill()
+                bullet.kill()
 
 obstacle_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(obstacle_timer, 2000)
@@ -61,10 +70,15 @@ while True:
         if game_active:
             if event.type == obstacle_timer:
                 obstacle_group.add(Obstacle(choice(["fly", "snail", "snail", "snail"])))
+                        
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                print("Bullet added")
+                bullet_group.add(Bullet())
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 start_time = pygame.time.get_ticks()
+
 
     if game_active:
         screen.blit(sky_surf, (0, 0))
@@ -76,6 +90,9 @@ while True:
         obstacle_group.draw(screen)
         obstacle_group.update()
 
+        bullet_group.draw(screen)
+        bullet_group.update()
+        check_bullet_collision()
         game_active = check_sprite_collision()
 
     if not game_active:

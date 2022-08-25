@@ -1,5 +1,5 @@
 ## Infinite Runner Python Project
-
+![Runner game image]("./sample.png")
 I am following Clear Code's tutorial at https://www.youtube.com/watch?v=AY9MnQ4x3zk as the basis of this project
 
 
